@@ -1,14 +1,17 @@
 import uvicorn
 from fastapi import FastAPI
-from dal import es_instance as es, INDEX_NAME
+from services.dal import es_instance as es, INDEX_NAME
 
+# This makes a FastAPI app
 app = FastAPI()
 
+# This shows the main page with two links
 @app.get("/")
 def main_page():
     return ["/antisemitic_with_weapons","/multiple_weapons"]
 
 
+# This checks if all data has "sentiment"
 def is_data_processed():
     query = {
         "query": {
@@ -22,6 +25,7 @@ def is_data_processed():
     res = es.count(index=INDEX_NAME, body=query)
     return res["count"] == 0
 
+# This shows documents that are antisemitic and have weapons
 @app.get("/antisemitic_with_weapons")
 def get_antisemitic_with_weapons():
     if not is_data_processed():
@@ -40,6 +44,7 @@ def get_antisemitic_with_weapons():
     hits = res["hits"]["hits"]
     return [doc["_source"] for doc in hits]
 
+# This shows documents with two or more weapons
 @app.get("/multiple_weapons")
 def get_docs_with_multiple_weapons():
     if not is_data_processed():
@@ -55,5 +60,6 @@ def get_docs_with_multiple_weapons():
     hits = res["hits"]["hits"]
     return [doc["_source"] for doc in hits]
 
+# This runs the FastAPI app
 def run():
-    uvicorn.run("fast_api:app", host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

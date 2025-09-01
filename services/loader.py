@@ -1,5 +1,5 @@
 import pandas as pd
-from dal import es_instance as es, INDEX_NAME
+from services.dal import es_instance as es, INDEX_NAME
 
 mapping = {
     "mappings": {
@@ -15,6 +15,7 @@ mapping = {
        }
     }
 
+# This function deletes the old index and makes a new one
 def reset_index():
     if es.indices.exists(index=INDEX_NAME):
         es.indices.delete(index=INDEX_NAME)
@@ -22,6 +23,7 @@ def reset_index():
     es.indices.create(index=INDEX_NAME, body=mapping)
     print(f"---Index '{INDEX_NAME}' created with mapping.---\n")
 
+# This function loads data from a file to Elasticsearch
 def load_data_to_elastic(file_path):
     df = pd.read_csv(file_path)
     inserted = 0

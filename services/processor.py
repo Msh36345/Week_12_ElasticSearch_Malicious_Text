@@ -1,7 +1,9 @@
+import os
 from elasticsearch import helpers
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from dal import es_instance as es, INDEX_NAME
+from services.dal import es_instance as es, INDEX_NAME
 
+# This function adds "sentiment" to documents
 def process_sentiment_batch(batch_size=1000):
     count = 0
     query = {
@@ -17,6 +19,7 @@ def process_sentiment_batch(batch_size=1000):
         }
     }
 
+    # Get documents from Elasticsearch
     scroll = es.search(index=INDEX_NAME, body=query, scroll="1m")
     sid = scroll['_scroll_id']
     hits = scroll['hits']['hits']
@@ -48,8 +51,10 @@ def process_sentiment_batch(batch_size=1000):
     print(f"---Processed {count} docs.---\n")
 
 
+# This function adds "weapons_found" and "weapons_count" to documents
 def process_weapons_batch(batch_size=1000):
     count = 0
+    # Find documents without "weapons_found"
     query = {
         "size": batch_size,
         "query": {
@@ -63,6 +68,7 @@ def process_weapons_batch(batch_size=1000):
         }
     }
 
+    # Get documents from Elasticsearch
     scroll = es.search(index=INDEX_NAME, body=query, scroll="1m")
     sid = scroll['_scroll_id']
     hits = scroll['hits']['hits']
@@ -95,8 +101,10 @@ def process_weapons_batch(batch_size=1000):
     print(f"---Processed {count} documents with weapon detection.---\n")
 
 
+# This function deletes safe documents
 def delete_safe_documents(batch_size=1000):
     count = 0
+    # Find documents that are safe
     query = {
         "size": batch_size,
         "query": {
@@ -131,6 +139,7 @@ def delete_safe_documents(batch_size=1000):
         }
     }
 
+    # Get documents from Elasticsearch
     scroll = es.search(index=INDEX_NAME, body=query, scroll="1m")
     sid = scroll['_scroll_id']
     hits = scroll['hits']['hits']
@@ -159,22 +168,27 @@ def delete_safe_documents(batch_size=1000):
 
 
 
+# This function finds if text is positive, negative, or neutral
 def _identify_sentiment(text):
     score = SentimentIntensityAnalyzer().polarity_scores(text)
     num_score=score["compound"]
-    if num_score>=0.5:
+    if num_score >= 0.5:
         return "positive"
-    if num_score<=0.5:
+    elif num_score <= -0.5:
         return "negative"
     else:
         return "neutral"
 
+# This function finds weapons in the text
 def _detect_weapons(text):
     words = {word.strip().lower() for word in text.split()}
-    found = words & _load_weapons()
+    found = words & weapons
     return list(found)
 
+# This function loads the weapons from a file
 def _load_weapons():
-    weapons_file = "../data/weapons.txt"
+    weapons_file = os.environ.get("WEAPONS_FILE", "data/weapons.txt")
     with open(weapons_file, "r") as f:
         return set([w.strip().lower() for w in f.readlines()])
+
+weapons = _load_weapons()
