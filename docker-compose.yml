@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    container_name: elastic
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    networks:
+      - es-net
+
+  fastapi:
+    build: .
+    container_name: fastapi-app
+    depends_on:
+      - elastic
+    ports:
+      - "8000:8000"
+    networks:
+      - es-net
+    restart: unless-stopped
+
+networks:
+  es-net:
