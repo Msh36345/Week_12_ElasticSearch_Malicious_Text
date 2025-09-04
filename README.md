@@ -13,7 +13,15 @@ This project uses **FastAPI** and **Elasticsearch**.
 
 ## How to run
 
-1. Run Elasticsearch on the network `elasticsearch-stack_elastic_network` at `http://elasticsearch:9200`.
+### Option A1 – Run with Docker Compose (from Docker Hub image)
+
+```
+docker-compose up --build
+```
+
+### Option A2 – Run locally with existing Elasticsearch container
+
+1. Make sure Elasticsearch is running on the `elasticsearch-stack_elastic_network` network at `http://elasticsearch:9200`.
 2. Build the Docker image:
    ```
    docker build -t malicious-text-app .
