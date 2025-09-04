@@ -19,9 +19,7 @@ services:
       start_period: 60s
 
   fastapi:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: msh36345/fast_api_week_12
     environment:
       - ES_HOST=http://elasticsearch:9200
       - INDEX_NAME=tweets
