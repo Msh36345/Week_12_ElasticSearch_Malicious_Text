@@ -1,5 +1,8 @@
 import pandas as pd
 from services.dal import es_instance as es, INDEX_NAME
+import logging
+
+logger = logging.getLogger(__name__)
 
 mapping = {
     "mappings": {
@@ -19,9 +22,9 @@ mapping = {
 def reset_index():
     if es.indices.exists(index=INDEX_NAME):
         es.indices.delete(index=INDEX_NAME)
-        print(f"Index '{INDEX_NAME}' deleted.")
+        logger.info(f"Index '{INDEX_NAME}' deleted.")
     es.indices.create(index=INDEX_NAME, body=mapping)
-    print(f"---Index '{INDEX_NAME}' created with mapping.---\n")
+    logger.info(f"---Index '{INDEX_NAME}' created with mapping.---\n")
 
 # This function loads data from a file to Elasticsearch
 def load_data_to_elastic(file_path):
@@ -33,6 +36,6 @@ def load_data_to_elastic(file_path):
         es.index(index=INDEX_NAME, document=row)
         inserted += 1
         if inserted%1000==0:
-            print(f"Inserted {inserted} documents")
-    print(f"---Inserted {inserted} documents----\n")
+            logger.info(f"Inserted {inserted} documents")
+    logger.info(f"---Inserted {inserted} documents----\n")
     es.indices.refresh(index=INDEX_NAME)

@@ -2,6 +2,9 @@ import os
 from elasticsearch import helpers
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from services.dal import es_instance as es, INDEX_NAME
+import logging
+
+logger = logging.getLogger(__name__)
 
 # This function adds "sentiment" to documents
 def process_sentiment_batch(batch_size=1000):
@@ -42,13 +45,13 @@ def process_sentiment_batch(batch_size=1000):
 
         if actions:
             helpers.bulk(es, actions)
-            print(f"Processed {len(actions)} docs.")
+            logger.info(f"Processed {len(actions)} docs.")
             count+=len(actions)
 
         scroll = es.scroll(scroll_id=sid, scroll="1m")
         sid = scroll['_scroll_id']
         hits = scroll['hits']['hits']
-    print(f"---Processed {count} docs.---\n")
+    logger.info(f"---Processed {count} docs.---\n")
 
 
 # This function adds "weapons_found" and "weapons_count" to documents
@@ -92,13 +95,13 @@ def process_weapons_batch(batch_size=1000):
 
         if actions:
             helpers.bulk(es, actions)
-            print(f"Processed {len(actions)} documents with weapon detection.")
+            logger.info(f"Processed {len(actions)} documents with weapon detection.")
             count+=len(actions)
 
         scroll = es.scroll(scroll_id=sid, scroll="1m")
         sid = scroll['_scroll_id']
         hits = scroll['hits']['hits']
-    print(f"---Processed {count} documents with weapon detection.---\n")
+    logger.info(f"---Processed {count} documents with weapon detection.---\n")
 
 
 # This function deletes safe documents
@@ -156,16 +159,14 @@ def delete_safe_documents(batch_size=1000):
 
         if actions:
             helpers.bulk(es, actions)
-            print(f"Deleted {len(actions)} safe documents.")
+            logger.info(f"Deleted {len(actions)} safe documents.")
             count+=len(actions)
 
 
         scroll = es.scroll(scroll_id=sid, scroll="1m")
         sid = scroll['_scroll_id']
         hits = scroll['hits']['hits']
-    print(f"---Deleted {count} safe documents.---\n")
-
-
+    logger.info(f"---Deleted {count} safe documents.---\n")
 
 
 # This function finds if text is positive, negative, or neutral

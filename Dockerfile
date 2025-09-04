@@ -12,4 +12,6 @@ COPY data/ ./data/
 
 ENV PYTHONPATH=/app
 
+EXPOSE 8000
+
 CMD ["python", "-m", "services.main"]

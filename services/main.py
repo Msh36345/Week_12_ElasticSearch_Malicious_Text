@@ -1,4 +1,13 @@
 import os
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
 from services.loader import load_data_to_elastic, reset_index
 from services.processor import process_sentiment_batch,process_weapons_batch, delete_safe_documents
 from services.fast_api import run

@@ -1,6 +1,9 @@
 import uvicorn
 from fastapi import FastAPI
 from services.dal import es_instance as es, INDEX_NAME
+import logging
+
+logger = logging.getLogger(__name__)
 
 # This makes a FastAPI app
 app = FastAPI()
